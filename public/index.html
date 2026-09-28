@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Realtime Voice — Greek/English</title>
+  <style>
+    :root { --bg:#fafafa; --fg:#1d1d1f; --muted:#6e6e73; --card:#fff; --line:#e3e3e8; --accent:#2563eb; --bad:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#9a9aa0; --card:#1b1b1d; --line:#2e2e33; --accent:#60a5fa; --bad:#f87171; } }
+    * { box-sizing: border-box; }
+    body { margin:0; font:15px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--fg); }
+    main { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+    section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+    h1 { font-size: 20px; margin: 0; } h2 { font-size: 15px; margin: 0 0 10px; color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    label { display:grid; gap:4px; font-size:13px; color:var(--muted); }
+    input, select, textarea, button { font: inherit; color: inherit; background: var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 8px; }
+    textarea { width:100%; min-height: 70px; }
+    button { cursor:pointer; } button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+    button:disabled { opacity:.5; cursor:default; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    #status { color: var(--muted); }
+    #error { color: var(--bad); display:none; }
+    .meter { height: 10px; background: var(--line); border-radius: 5px; overflow:hidden; flex: 1; min-width: 120px; }
+    .meter > div { height:100%; width:0; background: var(--accent); transition: width 50ms linear; }
+    #transcript { display:grid; gap:6px; max-height: 320px; overflow:auto; }
+    .msg { padding:6px 10px; border-radius:8px; background: var(--bg); }
+    .msg.user { border-left: 3px solid var(--muted); } .msg.bot { border-left: 3px solid var(--accent); }
+    table { width:100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th, td { text-align:right; padding: 4px 6px; border-bottom: 1px solid var(--line); } th:first-child, td:first-child { text-align:left; }
+    .table-wrap { overflow-x:auto; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Realtime Voice — Greek / English</h1>
+
+  <section>
+    <h2>Настройки (применяются при подключении)</h2>
+    <div class="grid">
+      <label>Модель
+        <select id="model">
+          <option>gpt-realtime-2.1</option>
+          <option>gpt-realtime-2.1-mini</option>
+        </select>
+      </label>
+      <label>Другая модель (перекрывает выбор)
+        <input id="modelCustom" placeholder="напр. gpt-realtime-2">
+      </label>
+      <label>Голос
+        <select id="voice">
+          <option>marin</option><option>cedar</option><option>alloy</option><option>ash</option><option>ballad</option>
+          <option>coral</option><option>echo</option><option>sage</option><option>shimmer</option><option>verse</option>
+        </select>
+      </label>
+      <label>VAD
+        <select id="vad">
+          <option value="semantic_vad">semantic_vad</option>
+          <option value="server_vad">server_vad</option>
+        </select>
+      </label>
+      <label>eagerness (semantic_vad)
+        <select id="eagerness"><option>auto</option><option>low</option><option>medium</option><option>high</option></select>
+      </label>
+      <label>silence_duration_ms (server_vad)
+        <input id="silenceMs" type="number" value="500" min="100" step="50">
+      </label>
+      <label>Модель транскрипции
+        <input id="transcribeModel" value="gpt-live-transcribe">
+      </label>
+    </div>
+    <label style="margin-top:10px">Системный промпт
+      <textarea id="prompt"></textarea>
+    </label>
+  </section>
+
+  <section>
+    <div class="row">
+      <button id="connect" class="primary">Подключиться</button>
+      <button id="mute" disabled>Выключить микрофон</button>
+      <button id="export">Экспорт JSON</button>
+      <span id="status">Не подключено</span>
+    </div>
+    <p id="error"></p>
+    <div class="row" style="margin-top:10px">🎙️ <div class="meter"><div id="micMeter"></div></div>
+      🤖 <div class="meter"><div id="botMeter"></div></div></div>
+    <audio id="botAudio" autoplay></audio>
+  </section>
+
+  <section>
+    <h2>Метрики</h2>
+    <p id="summary">—</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Событийная, мс</th><th>Акустическая, мс</th><th>Перебит</th><th>Остановка после перебивания, мс</th></tr></thead>
+        <tbody id="turns"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Транскрипт</h2>
+    <div id="transcript"></div>
+  </section>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

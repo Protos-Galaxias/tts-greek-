@@ -40,7 +40,7 @@ tts-greek/
 2. `getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } })`.
 3. `RTCPeerConnection`: микрофонный трек, data channel `oai-events`, `ontrack` → `<audio autoplay>`.
 4. SDP offer → `POST https://api.openai.com/v1/realtime/calls` (Bearer ek, `Content-Type: application/sdp`) → answer.
-5. После открытия data channel — `session.update`: `instructions`, `audio.input.turn_detection` (выбранный режим), `audio.input.transcription` (`gpt-4o-transcribe`) для отображения реплик пользователя.
+5. После открытия data channel — `session.update`: `instructions`, `audio.input.turn_detection` (выбранный режим), `audio.input.transcription` (`gpt-live-transcribe` по актуальной документации; поле редактируемое) для отображения реплик пользователя.
 
 **Настройки (до подключения):**
 - модель: select `gpt-realtime-2.1`, `gpt-realtime-2.1-mini` + текстовое поле для произвольного id;
